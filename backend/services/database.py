@@ -8,33 +8,38 @@ import sqlite3
 import hashlib
 import pandas as pd
 from datetime import datetime
+from pathlib import Path
+from dotenv import load_dotenv
+
+load_dotenv(Path(__file__).parent.parent.parent / ".env")
 
 # In-memory token cache mimicking Streamlit session state caching
 token_cache = {}
 
-def load_env_file():
-    """Recursively search and load environment variables from .env files."""
-    env_paths = [
-        ".env",
-        os.path.join("..", ".env"),
-        os.path.join("..", "..", ".env")
-    ]
-    for path in env_paths:
-        if os.path.exists(path):
-            try:
-                with open(path, "r") as f:
-                    for line in f:
-                        line = line.strip()
-                        if line and not line.startswith("#") and "=" in line:
-                            k, v = line.split("=", 1)
-                            os.environ[k.strip()] = v.strip().strip('"').strip("'")
-            except Exception:
-                pass
+# def load_env_file():
+#     """Recursively search and load environment variables from .env files."""
+#     env_paths = [
+#         ".env",
+#         os.path.join("..", ".env"),
+#         os.path.join("..", "..", ".env")
+#     ]
+#     for path in env_paths:
+#         if os.path.exists(path):
+#             try:
+#                 with open(path, "r") as f:
+#                     for line in f:
+#                         line = line.strip()
+#                         if line and not line.startswith("#") and "=" in line:
+#                             k, v = line.split("=", 1)
+#                             os.environ[k.strip()] = v.strip().strip('"').strip("'")
+#             except Exception:
+#                 pass
 
-load_env_file()
+# load_env_file()
 
 def load_accelerator_config():
-    """Retrieve system configuration from accelerator-config.json."""
+    """Retrieve system configuration from environment variables or fallback to JSON."""
+    config = {}
     config_paths = [
         os.path.join("config", "accelerator-config.json"),
         os.path.join("..", "config", "accelerator-config.json"),
@@ -45,10 +50,38 @@ def load_accelerator_config():
         if os.path.exists(path):
             try:
                 with open(path, "r") as f:
-                    return json.load(f)
+                    config = json.load(f)
+                    break
             except Exception:
                 pass
-    return {}
+
+    return {
+        "workspaceName": os.getenv("WORKSPACE_NAME", config.get("workspaceName", "SmartAIBankingRisk")),
+        "workspaceId": os.getenv("WORKSPACE_ID", config.get("workspaceId", "")),
+        "lakehouseName": os.getenv("LAKEHOUSE_NAME", config.get("lakehouseName", "BankingFraudLakehouse")),
+        "lakehouseId": os.getenv("LAKEHOUSE_ID", config.get("lakehouseId", "")),
+        "eventhouseName": os.getenv("EVENTHOUSE_NAME", config.get("eventhouseName", "BankingRiskEventhouse")),
+        "eventhouseId": os.getenv("EVENTHOUSE_ID", config.get("eventhouseId", "")),
+        "kqlDatabaseName": os.getenv("KQL_DATABASE_NAME", config.get("kqlDatabaseName", "BankingRiskDB")),
+        "kqlDatabaseId": os.getenv("KQL_DATABASE_ID", config.get("kqlDatabaseId", "")),
+        "eventstreamName": os.getenv("EVENTSTREAM_NAME", config.get("eventstreamName", "BankingTransactionStream")),
+        "eventstreamId": os.getenv("EVENTSTREAM_ID", config.get("eventstreamId", "")),
+        "eventstreamCustomEndpoint": os.getenv("EVENTSTREAM_CUSTOM_ENDPOINT", config.get("eventstreamCustomEndpoint", "")),
+        "subscriptionId": os.getenv("SUBSCRIPTION_ID", config.get("subscriptionId", "c7156529-f707-45d6-9e90-8f1ae545f62f")),
+        "resourceGroup": os.getenv("RESOURCE_GROUP", config.get("resourceGroup", "Data_Fabric")),
+        "capacityName": os.getenv("CAPACITY_NAME", config.get("capacityName", "fabricespl01")),
+        "capacityId": os.getenv("CAPACITY_ID", config.get("capacityId", "")),
+        "location": os.getenv("LOCATION", config.get("location", "southeastasia")),
+        "capacitySku": os.getenv("CAPACITY_SKU", config.get("capacitySku", "F32")),
+        "fraudAlertEmail": os.getenv("FRAUD_ALERT_EMAIL", config.get("fraudAlertEmail", "fraud-alerts@smartbank.com")),
+        "simulationSpeedTps": int(os.getenv("SIMULATION_SPEED_TPS", config.get("simulationSpeedTps", 2))),
+        "openaiConfig": {
+            "apiType": os.getenv("OPENAI_API_TYPE", config.get("openaiConfig", {}).get("apiType", "openai")),
+            "apiKey": os.getenv("OPENAI_API_KEY", config.get("openaiConfig", {}).get("apiKey", "YOUR_OPENAI_API_KEY")),
+            "apiEndpoint": os.getenv("OPENAI_API_ENDPOINT", config.get("openaiConfig", {}).get("apiEndpoint", "https://api.openai.com/v1")),
+            "modelName": os.getenv("OPENAI_MODEL_NAME", config.get("openaiConfig", {}).get("modelName", "gpt-4o"))
+        }
+    }
 
 config_data = load_accelerator_config()
 openai_config = config_data.get("openaiConfig", {})
