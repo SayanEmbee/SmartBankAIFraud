@@ -1,0 +1,68 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-slate-50/50 text-slate-800 font-sans antialiased overflow-x-hidden selection:bg-blue-600 selection:text-white;
+    background-image: 
+      radial-gradient(at 0% 0%, rgba(219, 234, 254, 0.3) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, rgba(241, 245, 249, 0.4) 0px, transparent 50%),
+      radial-gradient(at 50% 100%, rgba(219, 234, 254, 0.15) 0px, transparent 50%);
+    background-attachment: fixed;
+  }
+}
+
+/* Premium Light Mode panel custom classes */
+.glass-panel {
+  @apply bg-white border border-slate-200/80 rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.02)] transition-all duration-300;
+}
+
+.glass-panel-hover {
+  @apply hover:bg-white hover:border-slate-300 hover:shadow-[0_4px_20px_rgba(15,23,42,0.04)];
+}
+
+.glass-card-dark {
+  @apply bg-white border border-slate-200 rounded-2xl p-6 shadow-[0_2px_12px_rgba(0,0,0,0.01)];
+}
+
+/* Custom Scrollbar for Light Mode */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-200 rounded-full hover:bg-slate-300 transition-colors;
+}
+
+/* Dynamic soft pulse alerts for Light Mode */
+@keyframes soft-glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.08);
+    border-color: rgba(239, 68, 68, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 18px rgba(239, 68, 68, 0.2);
+    border-color: rgba(239, 68, 68, 0.6);
+  }
+}
+
+.alert-card-pulse {
+  animation: soft-glow-pulse 2s infinite ease-in-out;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-5px); }
+}
+
+.float-slow {
+  animation: float 4s infinite ease-in-out;
+}
